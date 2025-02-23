@@ -54,6 +54,14 @@ def get_ip_list():
             special_cats.append(line[5:-2])
 
 
+def doSave(page, minor, pagetitle, summary):
+    check = pywikibot.Page(enwiki, title=pagetitle).latest_revision_id
+    if page.latest_revision_id = check:
+        page.save(minor=minor, summary=summary)
+    else:
+        logger.warning("Revision ID changed, aborting edit: %s != %s", page.latest_revision_id, check)
+        raise pywikibot.EditConflict
+
 while True:
     get_ip_list()
     for pagetitle in pages_to_watch:
@@ -98,16 +106,16 @@ while True:
                             if username in special_ips:
                                 content.replace(f, f+"<!--marked-->\n:*'''Note:''' "+special_ips[username] + ". ~~~~")
                                 page.text = content
-                                logging.info("Marking %s as a sensitive IP", username)
-                                page.save(minor=False, summary=str(vandalCount)+" reports remaining. Commenting on " + username + " : Sensitive IP")
+                                logger.info("Marking %s as a sensitive IP", username)
+                                doSave(page, False, pagetitle, str(vandalCount)+" reports remaining. Commenting on " + username + " : Sensitive IP")
                                 break
                         # Get user categories
                         for cat in userInfo.categories():
                             if cat.title() in special_cats:
                                 content.replace(f, f+"<!--marked-->\n:*'''Note:''' User is in the category: "+ cat + ". ~~~~")
                                 page.text = content
-                                logging.info("Marking %s as belonging to an important category", username)
-                                page.save(minor=False, summary=str(vandalCount)+" reports remaining. Commenting on " + username + " : User is in the category " + cat)
+                                logger.info("Marking %s as belonging to an important category", username)
+                                doSave(page, False, pagetitle, str(vandalCount)+" reports remaining. Commenting on " + username + " : User is in the category " + cat)
                                 break
                     isLocked = False
                     if not userInfo.isAnonymous():
@@ -142,28 +150,28 @@ while True:
                                 if counter != len(lines) - 1 and lines[counter+1] == "*":
                                     if counter + 2 < len(lines):
                                         content.remove(lines[counter]+"\n*\n")
-                                        logging.info("Blank bullet found after entry %s, removing", username)
+                                        logger.info("Blank bullet found after entry %s, removing", username)
                                     elif counter + 1 < len(lines):
                                         content.remove(lines[counter] + "\n*")
-                                        logging.info("Blank bullet found at end of page after entry %s, removing", username)
+                                        logger.info("Blank bullet found at end of page after entry %s, removing", username)
                                     counter += 2
                                 elif counter == len(lines) - 1:
                                     content.remove(f)
-                                    logging.info("Removing entry for user %s at end of page", username)
+                                    logger.info("Removing entry for user %s at end of page", username)
                                     break
                                 else:
                                     content.remove(f+"\n")
                                     counter += 1
-                                    logging.info("Removing entry for user %s, continuing checks", username)            
+                                    logger.info("Removing entry for user %s, continuing checks", username)            
 
                             elif lines[counter][0:2] == "*:" or lines[counter][0:2] == "**" or lines[counter][0] == ":":
                                 if counter == len(lines)-1:
                                     content.remove(lines[counter])
-                                    logging.info("Removing comment for user %s at end of page", username)
+                                    logger.info("Removing comment for user %s at end of page", username)
                                     break
                                 else:
                                     content.remove(lines[counter]+"\n")
-                                    logging.info("Removing comment for user %s, continuing checks", username)
+                                    logger.info("Removing comment for user %s, continuing checks", username)
                                 counter += 1
                             else:
                                 break
@@ -189,9 +197,9 @@ while True:
 
                         if len(flags) != 0:
                             summary += " ([[User:HBC AIV helperbot/Legend|" + " ".join(flags) + "]])"
-                        logging.info('Saving with summary "%s"', summary)
+                        logger.info('Saving with summary "%s"', summary)
                         page.text = content
-                        page.save(summary=summary, minor=False)
+                        doSave(page, False, pagetitle, summary)
                         time.sleep(5)
                         break
 
@@ -204,23 +212,22 @@ while True:
                 for t in all_temps:
                     if t.name == "noadminbacklog":
                         if vandalCount >= AddLimit:
-                            logging.info("Marking %s as backlogged", page.title())
+                            logger.info("Marking %s as backlogged", page.title())
                             newt = mwparserfromhell.nodes.Template(name="adminbacklog")
                             newt.add("bot", "HBC AIV helperbot14")
                             content.replace(t, newt)
                             page.text = content
-                            page.save(summary=str(vandalCount)+" reports remaining.")
+                            doSave(page, False, pagetitle, str(vandalCount)+" reports remaining. Noticeboard is backlogged.")
                     if t.name == "adminbacklog":
                         if vandalCount <= RemoveLimit:
-                            logging.info("Marking %s as unbacklogged", page.title())
+                            logger.info("Marking %s as unbacklogged", page.title())
                             newt = mwparserfromhell.nodes.Template(name="noadminbacklog")
                             newt.add("bot", "HBC AIV helperbot14")
                             content.replace(t, newt)
                             page.text = content
-                            page.save(summary=str(vandalCount)+" reports remaining. Noticeboard is no longer backlogged")
+                            doSave(page, False, pagetitle, str(vandalCount)+" reports remaining. Noticeboard is no longer backlogged")
         except Exception as e:
-            logging.exception(e)
-            print(e)
+            logger.exception(e)
             continue 
    
     time.sleep(60 * 5) # wait 5 mins between runs
