@@ -85,10 +85,15 @@ def check_instructions(page: pywikibot.Page):
             return True
     return False
 
-def do_save(page: pywikibot.Page, minor: bool, pagetitle: str, summary: str):
-    check = pywikibot.Page(enwiki, title=pagetitle).latest_revision_id
-    if page.latest_revision_id == check:
+def do_save(page: pywikibot.Page, minor: bool, summary: str):
+    logger.info("prepping check")
+    oldid = page.latest_revision_id
+    page.get(force=True)
+    newid = page.latest_revision_id
+
+    if oldid == newid:
         page.save(minor=minor, summary=summary)
+        logger.info('Saved with summary "%s"', summary)
     else:
         logger.warning("Revision ID changed, aborting edit: %s != %s", page.latest_revision_id, check)
         raise pywikibot.EditConflict
@@ -107,7 +112,7 @@ def CheckBacklogged(page, settings):
                 newt.add("bot", "HBC AIV helperbot14")
                 content.replace(t, newt)
                 page.text = content
-                do_save(summary=str(vandalCount)+" reports remaining. Noticeboard is backlogged")
+                do_save(page, False, strsummary=str(vandalCount)+" reports remaining. Noticeboard is backlogged")
                 return True
         if t.name == "adminbacklog":
             if vandalCount <= settings.RemoveLimit:
@@ -116,7 +121,7 @@ def CheckBacklogged(page, settings):
                 newt.add("bot", "HBC AIV helperbot14")
                 content.replace(t, newt)
                 page.text = content
-                do_save(summary=str(vandalCount)+" reports remaining. Noticeboard is no longer backlogged")
+                do_save(page, False, summary=str(vandalCount)+" reports remaining. Noticeboard is no longer backlogged")
                 return True
     return False
 
@@ -164,7 +169,7 @@ while True:
                                 content.replace(f, f+"<!--marked-->\n:*'''Note:''' "+special_ips[username] + ". ~~~~")
                                 page.text = content
                                 logger.info("Marking %s as a sensitive IP", username)
-                                do_save(page, False, pagetitle, str(vandalCount)+" reports remaining. Commenting on " + username + " : Sensitive IP")
+                                do_save(page, False, str(vandalCount)+" reports remaining. Commenting on " + username + " : Sensitive IP")
                                 break
                         # Get user categories
                         for cat in userInfo.categories():
@@ -172,7 +177,7 @@ while True:
                                 content.replace(f, f+"<!--marked-->\n:*'''Note:''' User is in the category: "+ cat + ". ~~~~")
                                 page.text = content
                                 logger.info("Marking %s as belonging to an important category", username)
-                                do_save(page, False, pagetitle, str(vandalCount)+" reports remaining. Commenting on " + username + " : User is in the category " + cat)
+                                do_save(page, False, str(vandalCount)+" reports remaining. Commenting on " + username + " : User is in the category " + cat)
                                 break
                     isLocked = False
                     if not userInfo.isAnonymous():
@@ -254,10 +259,8 @@ while True:
 
                         if len(flags) != 0:
                             summary += " ([[User:HBC AIV helperbot/Legend|" + " ".join(flags) + "]])"
-                        logger.info('Saving with summary "%s"', summary)
                         page.text = content
-                        do_save(page, False, pagetitle, summary)
-                        time.sleep(5)
+                        do_save(page, False, summary)
                         break
 
             page = pywikibot.Page(enwiki, title=pagetitle)
@@ -274,7 +277,7 @@ while True:
                             newt.add("bot", "HBC AIV helperbot14")
                             content.replace(t, newt)
                             page.text = content
-                            do_save(page, False, pagetitle, str(vandalCount)+" reports remaining. Noticeboard is backlogged.")
+                            do_save(page, False, str(vandalCount)+" reports remaining. Noticeboard is backlogged.")
                     if t.name == "adminbacklog":
                         if vandalCount <= settings.RemoveLimit:
                             logger.info("Marking %s as unbacklogged", page.title())
@@ -282,7 +285,7 @@ while True:
                             newt.add("bot", "HBC AIV helperbot14")
                             content.replace(t, newt)
                             page.text = content
-                            do_save(page, False, pagetitle, str(vandalCount)+" reports remaining. Noticeboard is no longer backlogged")
+                            do_save(page, False, str(vandalCount)+" reports remaining. Noticeboard is no longer backlogged")
         except Exception as e:
             logger.exception(e)
             continue 
