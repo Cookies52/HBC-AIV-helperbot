@@ -77,7 +77,6 @@ def check_instructions(page: pywikibot.Page):
         sections = mwparserfromhell.parse(page.text).get_sections(matches="User-reported")
         instruction_regex = re.compile('=== User-reported ===\n'+ re.escape(match.group(1)) + '\n\n\\*', flags=re.DOTALL)
         if instruction_regex.match(str(sections[0])) is None:
-            print('=== User-reported ===\n' + match.group(1) + "\n\\*")
             logger.info("Replacing instructions")
             page.text = re.sub('=== User-reported ===\n<!--.*-->', '=== User-reported ===\n', page.text, flags=re.DOTALL)
             page.text = re.sub('=== User-reported ===.*?\\*', '=== User-reported ===\n' + match.group(1) + "\n\n*", page.text, flags=re.DOTALL)
@@ -240,7 +239,7 @@ while True:
 
                         vandalCount -= 1
                         flags = []
-                        summary = str(vandalCount) + " users left, rm [[Special:Contributions/" + username +"|" + username + "]]"
+                        summary = str(vandalCount) + " reports remaining, rm [[Special:Contributions/" + username +"|" + username + "]]"
                         if "blockedby" in props and props["blockedby"] != "":
                             if "blockexpiry" in props and props["blockexpiry"] == "infinite":
                                 summary += " (blocked indef by " + props["blockedby"]
