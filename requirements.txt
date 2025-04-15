@@ -1,1 +1,2 @@
-pywikibot==9.1.2
+pywikibot==10.0.0
+black==25.1.0

@@ -1,7 +1,2 @@
 #/bin/sh
-
-cd /data/project/mdann52bot/Mdann52-bot
-
-cd AIV
-../venv/bin/python bot.py
-
+/data/project/mdann52bot/HBC_AIV_Helperbot/venv/bin/python src/bot.py
