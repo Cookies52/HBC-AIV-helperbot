@@ -92,6 +92,11 @@ def check_instructions(page: pywikibot.Page):
             "=== User-reported ===\n" + re.escape(match.group(1)) + "\n\n\\*",
             flags=re.DOTALL,
         )
+
+        logger.info(match.group(1))
+        if match.group(1) == "":
+            return False
+
         if instruction_regex.match(str(sections[0])) is None:
             logger.info("Replacing instructions")
             page.text = re.sub(
