@@ -290,7 +290,7 @@ while True:
                                     partialBlock = False
 
                         counter = idx
-                        while settings.RemovedBlocked and counter < len(lines):
+                        while settings.RemovedBlocked and counter < len(lines) and not partialBlock:
                             if lines[counter] == "":
                                 counter += 1
 
