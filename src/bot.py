@@ -50,6 +50,13 @@ class Settings:
         self.AddLimit = int(settings.group(6))
         self.RemoveLimit = int(settings.group(7))
 
+        if self.AddLimit <= self.RemoveLimit:
+            # Settings malformed, use default values
+            logger.warning("Invalid limits specified")
+            self.AddLimit = 4
+            self.RemoveLimit = 2
+            
+
     def __str__(self):
         return "{},{},{},{},{},{},{}".format(
             self.RemovedBlocked,
@@ -197,8 +204,8 @@ while True:
             logger.info("Updated Settings for %s: %s", page.title(), str(settings))
 
             # Check instructions are up to date, if present
-            if check_instructions(page):
-                break
+            #if check_instructions(page):
+            #    break
 
             # next, check if any users need removing
             lines = page.text.split("\n")
@@ -246,9 +253,9 @@ while True:
                                 content.replace(
                                     f,
                                     f
-                                    + "<!--marked-->\n:*'''Note:''' User is in the category: "
-                                    + cat
-                                    + ". ~~~~",
+                                    + "<!--marked-->\n:*'''Note:''' User is in the category: [[:"
+                                    + str(cat.title())
+                                    + "]]. ~~~~",
                                 )
                                 page.text = content
                                 logger.info(
@@ -261,8 +268,8 @@ while True:
                                     str(vandalCount)
                                     + " reports remaining. Commenting on "
                                     + username
-                                    + " : User is in the category "
-                                    + cat,
+                                    + " : User is in the category [[:"
+                                    + str(cat.title()) + "]]",
                                 )
                                 break
                     isLocked = False
@@ -320,7 +327,7 @@ while True:
                                     )
                                     break
                                 else:
-                                    content.remove(f + "\n")
+                                    content.remove(str(f) + "\n")
                                     counter += 1
                                     logger.info(
                                         "Removing entry for user %s, continuing checks",
