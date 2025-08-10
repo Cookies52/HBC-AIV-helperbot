@@ -55,7 +55,6 @@ class Settings:
             logger.warning("Invalid limits specified")
             self.AddLimit = 4
             self.RemoveLimit = 2
-            
 
     def __str__(self):
         return "{},{},{},{},{},{},{}".format(
@@ -204,7 +203,7 @@ while True:
             logger.info("Updated Settings for %s: %s", page.title(), str(settings))
 
             # Check instructions are up to date, if present
-            #if check_instructions(page):
+            # if check_instructions(page):
             #    break
 
             # next, check if any users need removing
@@ -269,7 +268,8 @@ while True:
                                     + " reports remaining. Commenting on "
                                     + username
                                     + " : User is in the category [[:"
-                                    + str(cat.title()) + "]]",
+                                    + str(cat.title())
+                                    + "]]",
                                 )
                                 break
                     isLocked = False
@@ -297,7 +297,11 @@ while True:
                                     partialBlock = False
 
                         counter = idx
-                        while settings.RemovedBlocked and counter < len(lines) and not partialBlock:
+                        while (
+                            settings.RemovedBlocked
+                            and counter < len(lines)
+                            and not partialBlock
+                        ):
                             if lines[counter] == "":
                                 counter += 1
 
