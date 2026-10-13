@@ -296,11 +296,21 @@ while True:
                                 if "partial" not in block:
                                     partialBlock = False
 
+                        # If the entry has |tpa=yes, only remove it when the
+                        # block also prevents the user from editing their own
+                        # talk page (blockowntalk).
+                        tpa_yes = (
+                            t.has("tpa")
+                            and str(t.get("tpa").value).strip().lower() == "yes"
+                        )
+                        tpa_protected = tpa_yes and "blockowntalk" not in props
+
                         counter = idx
                         while (
                             settings.RemovedBlocked
                             and counter < len(lines)
                             and not partialBlock
+                            and not tpa_protected
                         ):
                             if lines[counter] == "":
                                 counter += 1
@@ -360,44 +370,45 @@ while True:
                             else:
                                 break
 
-                        vandalCount -= 1
-                        flags = []
-                        summary = (
-                            str(vandalCount)
-                            + " reports remaining, rm [[Special:Contributions/"
-                            + username
-                            + "|"
-                            + username
-                            + "]]"
-                        )
-                        if "blockedby" in props and props["blockedby"] != "":
-                            if (
-                                "blockexpiry" in props
-                                and props["blockexpiry"] == "infinite"
-                            ):
-                                summary += " (blocked indef by " + props["blockedby"]
-                            else:
-                                summary += " (blocked by " + props["blockedby"]
-                            summary += ")"
-
-                        if "blockowntalk" in props:
-                            flags.append("TPD")
-                        if "blockemail" in props:
-                            flags.append("EMD")
-                        if "blocknocreate" in props:
-                            flags.append("ACB")
-                        if anon_only:
-                            flags.append("AO")
-
-                        if len(flags) != 0:
-                            summary += (
-                                " ([[User:HBC AIV helperbot/Legend|"
-                                + " ".join(flags)
-                                + "]])"
+                        if not tpa_protected:
+                            vandalCount -= 1
+                            flags = []
+                            summary = (
+                                str(vandalCount)
+                                + " reports remaining, rm [[Special:Contributions/"
+                                + username
+                                + "|"
+                                + username
+                                + "]]"
                             )
-                        page.text = content
-                        do_save(page, False, summary)
-                        break
+                            if "blockedby" in props and props["blockedby"] != "":
+                                if (
+                                    "blockexpiry" in props
+                                    and props["blockexpiry"] == "infinite"
+                                ):
+                                    summary += " (blocked indef by " + props["blockedby"]
+                                else:
+                                    summary += " (blocked by " + props["blockedby"]
+                                summary += ")"
+
+                            if "blockowntalk" in props:
+                                flags.append("TPD")
+                            if "blockemail" in props:
+                                flags.append("EMD")
+                            if "blocknocreate" in props:
+                                flags.append("ACB")
+                            if anon_only:
+                                flags.append("AO")
+
+                            if len(flags) != 0:
+                                summary += (
+                                    " ([[User:HBC AIV helperbot/Legend|"
+                                    + " ".join(flags)
+                                    + "]])"
+                                )
+                            page.text = content
+                            do_save(page, False, summary)
+                            break
 
             page = pywikibot.Page(enwiki, title=pagetitle)
             content = mwparserfromhell.parse(page.text)
