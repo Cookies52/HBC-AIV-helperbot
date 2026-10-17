@@ -159,7 +159,7 @@ def CheckBacklogged(page, settings):
                     page,
                     False,
                     strsummary=str(vandalCount)
-                    + " reports remaining. Noticeboard is backlogged",
+                    + " report(s) remaining. Noticeboard is backlogged",
                 )
                 return True
         if t.name == "adminbacklog":
@@ -173,7 +173,7 @@ def CheckBacklogged(page, settings):
                     page,
                     False,
                     summary=str(vandalCount)
-                    + " reports remaining. Noticeboard is no longer backlogged",
+                    + " report(s) remaining. Noticeboard is no longer backlogged",
                 )
                 return True
     return False
@@ -241,7 +241,7 @@ while True:
                                     page,
                                     False,
                                     str(vandalCount)
-                                    + " reports remaining. Commenting on "
+                                    + " report(s) remaining. Commenting on "
                                     + username
                                     + " : Sensitive IP",
                                 )
@@ -265,7 +265,7 @@ while True:
                                     page,
                                     False,
                                     str(vandalCount)
-                                    + " reports remaining. Commenting on "
+                                    + " report(s) remaining. Commenting on "
                                     + username
                                     + " : User is in the category [[:"
                                     + str(cat.title())
@@ -364,7 +364,7 @@ while True:
                         flags = []
                         summary = (
                             str(vandalCount)
-                            + " reports remaining, rm [[Special:Contributions/"
+                            + " report(s) remaining, rm [[Special:Contributions/"
                             + username
                             + "|"
                             + username
@@ -421,7 +421,7 @@ while True:
                                 page,
                                 False,
                                 str(vandalCount)
-                                + " reports remaining. Noticeboard is backlogged.",
+                                + " report(s) remaining. Noticeboard is backlogged.",
                             )
                     if t.name == "adminbacklog":
                         if vandalCount <= settings.RemoveLimit:
@@ -436,10 +436,11 @@ while True:
                                 page,
                                 False,
                                 str(vandalCount)
-                                + " reports remaining. Noticeboard is no longer backlogged",
+                                + " report(s) remaining. Noticeboard is no longer backlogged",
                             )
         except Exception as e:
             logger.exception(e)
             continue
 
     time.sleep(60 * 5)  # wait 5 mins between runs
+
