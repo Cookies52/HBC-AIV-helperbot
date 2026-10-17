@@ -386,7 +386,9 @@ while True:
                                     "blockexpiry" in props
                                     and props["blockexpiry"] == "infinite"
                                 ):
-                                    summary += " (blocked indef by " + props["blockedby"]
+                                    summary += (
+                                        " (blocked indef by " + props["blockedby"]
+                                    )
                                 else:
                                     summary += " (blocked by " + props["blockedby"]
                                 summary += ")"
@@ -454,4 +456,3 @@ while True:
             continue
 
     time.sleep(60 * 5)  # wait 5 mins between runs
-
